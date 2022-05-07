@@ -1,10 +1,12 @@
 package dte.modernjavaplugin;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reflections.Reflections;
 
 public class ModernJavaPlugin extends JavaPlugin
 {
@@ -22,6 +24,29 @@ public class ModernJavaPlugin extends JavaPlugin
 	{
 		for(Listener listener : listeners)
 			Bukkit.getPluginManager().registerEvents(listener, this);
+	}
+	
+	public void registerSimpleListeners(String listenersPackageName) 
+	{
+		String listenersPackage = String.format("%s.%s", getClass().getPackage().getName(), listenersPackageName);
+		
+		Listener[] listeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
+				.map(classz -> 
+				{
+					try
+					{
+						return classz.getConstructor().newInstance();
+					} 
+					catch(Exception exception) 
+					{
+						getLogger().severe("Could not auto-register listener: " + classz.getName());
+						return null;
+					}
+				})
+				.filter(Objects::nonNull)
+				.toArray(Listener[]::new);
+		
+		registerListeners(listeners);
 	}
 	
 	/**
