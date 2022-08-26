@@ -1,20 +1,24 @@
 package dte.modernjavaplugin;
 
+import static java.util.stream.Collectors.toList;
+import static org.bukkit.ChatColor.RED;
+
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 
+import dte.modernjavaplugin.utils.ClassUtils;
+
 public class ModernJavaPlugin extends JavaPlugin
 {
 	private final String pluginName = getDescription().getName();
-	
-	private boolean isDisabled;
-	private Runnable safeDisableListener;
-	
+
 	/**
 	 * Registers the provided {@code listeners} for this plugin.
 	 * 
@@ -26,75 +30,59 @@ public class ModernJavaPlugin extends JavaPlugin
 			Bukkit.getPluginManager().registerEvents(listener, this);
 	}
 	
-	public void registerSimpleListeners(String listenersPackageName) 
+	/**
+	 * Auto-detects and registers all subclasses of {@code Listener} in the package identified by the provided {@code package name}.
+	 * 
+	 * @param listenersPackage The name of the listeners' package.
+	 */
+	public void registerListeners(String listenersPackage) 
 	{
-		String listenersPackage = String.format("%s.%s", getClass().getPackage().getName(), listenersPackageName);
-		
-		Listener[] listeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
+		List<Listener> foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
 				.map(classz -> 
 				{
-					try
-					{
-						return classz.getConstructor().newInstance();
-					} 
-					catch(Exception exception) 
-					{
-						getLogger().severe("Could not auto-register listener: " + classz.getName());
-						return null;
-					}
+					return ClassUtils.getNoArgumentConstructor(classz)
+							.map(constructor -> 
+							{
+								try
+								{
+									return constructor.newInstance();
+								}
+								catch(Exception exception)
+								{
+									logToConsole(RED + String.format("Could not auto-register listener %s due to %s", classz.getName(), ExceptionUtils.getCause(exception)));
+									return null;
+								}
+							})
+							.orElse(null);
 				})
 				.filter(Objects::nonNull)
-				.toArray(Listener[]::new);
+				.collect(toList());
 		
-		registerListeners(listeners);
+		if(!foundListeners.isEmpty()) 
+		{
+			logToConsole(String.format("Auto-registering %d listeners...", foundListeners.size()));
+			registerListeners(foundListeners.toArray(new Listener[0]));
+		}
 	}
-	
+
 	/**
-	 * Sends a colorable message to the console, without omitting the plugin's prefix.
+	 * Sends a colored message to the console, without omitting the plugin's prefix.
 	 * 
 	 * @param message The message to send.
 	 */
 	public void logToConsole(String message) 
 	{
-		String withPrefix = String.format("[%s] %s", this.pluginName, message);
+		Bukkit.getConsoleSender().sendMessage(String.format("[%s] %s", this.pluginName, message));
+	}
 
-		Bukkit.getConsoleSender().sendMessage(withPrefix);
-	}
-	
-	
-	
-	/*
-	 * Safe Disable Methods - The only workaround the following example scenario:
-	 * 1. During onEnabe() You save the instance of Essentials.
-	 * 2. During onDisable() you try to send a message to all the AFK players.
-	 * 3. NPE is suddenly thrown during onDisable() because Essentials wasn't on the server.
+	/**
+	 * Logs to console the provided {@code error messages} and then shuts the plugin down.
 	 * 
-	 * The status of the plugin must be saved, because onDisable() is called *after* the plugin is disabled - so isEnabled() will always be false.
+	 * @param messages The error messages to send.
 	 */
-	
-	@Override
-	public void onDisable()
-	{
-		if(this.isDisabled) 
-			return;
-		
-		this.safeDisableListener.run();
-	}
-	
-	public void disable() 
-	{
-		this.isDisabled = true;
-		setEnabled(false);
-	}
-	
 	public void disableWithError(String... messages) 
 	{
 		Arrays.stream(messages).forEach(this::logToConsole);
-		disable();
-	}
-	
-	protected void setDisableListener(Runnable code) 
-	{
-		this.safeDisableListener = code;
+		Bukkit.getPluginManager().disablePlugin(this);
 	}
 }
