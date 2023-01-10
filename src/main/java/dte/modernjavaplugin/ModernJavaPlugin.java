@@ -13,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 
-import dte.modernjavaplugin.utils.ClassUtils;
 
 public class ModernJavaPlugin extends JavaPlugin
 {
@@ -40,20 +39,15 @@ public class ModernJavaPlugin extends JavaPlugin
 		List<Listener> foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
 				.map(classz -> 
 				{
-					return ClassUtils.getNoArgumentConstructor(classz)
-							.map(constructor -> 
-							{
-								try
-								{
-									return constructor.newInstance();
-								}
-								catch(Exception exception)
-								{
-									logToConsole(RED + String.format("Could not auto-register listener %s due to %s", classz.getName(), ExceptionUtils.getCause(exception)));
-									return null;
-								}
-							})
-							.orElse(null);
+					try
+					{
+						return (Listener) classz.getConstructor().newInstance();
+					}
+					catch(Exception exception)
+					{
+						logToConsole(RED + String.format("Could not auto-register listener %s due to: %s", classz.getName(), ExceptionUtils.getCause(exception)));
+						return null;
+					}
 				})
 				.filter(Objects::nonNull)
 				.collect(toList());
