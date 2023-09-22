@@ -1,10 +1,8 @@
 package dte.modernjavaplugin;
 
-import static java.util.stream.Collectors.toList;
 import static org.bukkit.ChatColor.RED;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -36,33 +34,37 @@ public class ModernJavaPlugin extends JavaPlugin
 	}
 	
 	/**
-	 * Auto-detects and registers all subclasses of {@code Listener} in the package identified by the provided {@code package name}.
+	 * Registers all {@code Listener} classes that are located inside the provided {@code package}. 
+	 * This method treats only classes that have an empty constructor.
 	 * 
 	 * @param listenersPackage The name of the listeners' package.
 	 */
 	public void registerListeners(String listenersPackage) 
 	{
-		List<Listener> foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
+		Listener[] foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
 				.map(classz -> 
 				{
 					try
 					{
-						return (Listener) classz.getConstructor().newInstance();
+						//create an instance from the empty constructor
+						return classz.getConstructor().newInstance();
+					}
+					catch(NoSuchMethodException exception) 
+					{
+						//skip the class if it doesn't have an empty constructor
+						return null;
 					}
 					catch(Exception exception)
 					{
-						logToConsole(RED + String.format("Could not auto-register listener %s due to: %s", classz.getName(), ExceptionUtils.getCause(exception)));
+						//log any other exceptions
+						logToConsole(RED + String.format("Couldn't register listener '%s' due to %s", classz.getSimpleName(), ExceptionUtils.getRootCauseMessage(exception)));
 						return null;
 					}
 				})
 				.filter(Objects::nonNull)
-				.collect(toList());
-		
-		if(!foundListeners.isEmpty()) 
-		{
-			logToConsole(String.format("Auto-registering %d listeners...", foundListeners.size()));
-			registerListeners(foundListeners.toArray(new Listener[0]));
-		}
+				.toArray(Listener[]::new);
+
+		registerListeners(foundListeners);
 	}
 
 	/**
