@@ -39,7 +39,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param listenersPackage The name of the listeners' package.
 	 */
-	public void registerListeners(String listenersPackage) 
+	public void registerListenersAt(String listenersPackage) 
 	{
 		Listener[] foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
 				.map(classz -> 
