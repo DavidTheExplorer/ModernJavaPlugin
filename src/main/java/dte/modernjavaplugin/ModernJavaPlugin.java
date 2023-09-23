@@ -57,7 +57,7 @@ public class ModernJavaPlugin extends JavaPlugin
 					catch(Exception exception)
 					{
 						//log any other exceptions
-						logToConsole(RED + String.format("Couldn't register listener '%s' due to %s", classz.getSimpleName(), ExceptionUtils.getRootCauseMessage(exception)));
+						logError(String.format("Couldn't register listener '%s' due to %s", classz.getSimpleName(), ExceptionUtils.getRootCauseMessage(exception)));
 						return null;
 					}
 				})
@@ -76,6 +76,17 @@ public class ModernJavaPlugin extends JavaPlugin
 	{
 		Bukkit.getConsoleSender().sendMessage(String.format("[%s] %s", this.pluginName, message));
 	}
+	
+	/**
+	 * A variant of {@link #logToConsole(String)} that logs <b>red</b> messages to the console.
+	 * 
+	 * @param message The error message to log.
+	 */
+	public void logError(String message) 
+	{
+		logToConsole(RED + message);
+	}
+	
 
 	/**
 	 * Logs to console the provided {@code error messages} and then shuts the plugin down.
