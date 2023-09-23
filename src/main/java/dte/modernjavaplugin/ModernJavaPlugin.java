@@ -87,15 +87,15 @@ public class ModernJavaPlugin extends JavaPlugin
 		logToConsole(RED + message);
 	}
 	
-
 	/**
-	 * Logs to console the provided {@code error messages} and then shuts the plugin down.
+	 * Shortcut method to disable the plugin due to an error, and the provided {@code messages} will be logged to the console in <b>red</b>.
 	 * 
-	 * @param messages The error messages to send.
+	 * @param errorMessages The messages to send to the console in red.
 	 */
-	public void disableWithError(String... messages) 
+	public void disableBecause(String... errorMessages)
 	{
-		Arrays.stream(messages).forEach(this::logToConsole);
+		Arrays.stream(errorMessages).forEach(this::logError);
+		
 		Bukkit.getPluginManager().disablePlugin(this);
 	}
 	
