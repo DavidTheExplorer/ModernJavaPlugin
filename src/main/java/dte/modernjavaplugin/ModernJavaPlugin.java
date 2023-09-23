@@ -13,6 +13,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
 
+import dte.modernjavaplugin.serviceprovider.ServiceProvider;
+import dte.modernjavaplugin.serviceprovider.VaultHook;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
+
 
 public class ModernJavaPlugin extends JavaPlugin
 {
@@ -78,5 +84,35 @@ public class ModernJavaPlugin extends JavaPlugin
 	{
 		Arrays.stream(messages).forEach(this::logToConsole);
 		Bukkit.getPluginManager().disablePlugin(this);
+	}
+	
+	/**
+	 * Shortcut method that imitates a natural way of retrieving the Economy Manager of the server.
+	 * 
+	 * @return What {@link VaultHook#loadEconomy()} returns.
+	 */
+	public ServiceProvider<Economy> loadEconomy()
+	{
+		return VaultHook.loadEconomy();
+	}
+	
+	/**
+	 * Shortcut method that imitates a natural way of retrieving the Permissions Manager of the server.
+	 * 
+	 * @return What {@link VaultHook#loadPermission()} returns.
+	 */
+	public ServiceProvider<Permission> loadPermissions()
+	{
+		return VaultHook.loadPermission();
+	}
+	
+	/**
+	 * Shortcut method that imitates a natural way of retrieving the Chat Manager of the server.
+	 * 
+	 * @return What {@link VaultHook#loadChat()} returns.
+	 */
+	public ServiceProvider<Chat> loadChat()
+	{
+		return VaultHook.loadChat();
 	}
 }
