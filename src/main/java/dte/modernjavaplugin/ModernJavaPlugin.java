@@ -72,7 +72,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param message The message to send.
 	 */
-	public void logToConsole(String message) 
+	public void log(String message) 
 	{
 		Bukkit.getConsoleSender().sendMessage(String.format("[%s] %s", this.pluginName, message));
 	}
@@ -84,7 +84,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 */
 	public void logError(String message) 
 	{
-		logToConsole(RED + message);
+		log(RED + message);
 	}
 	
 	/**
