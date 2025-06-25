@@ -26,7 +26,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param listeners The listeners to register.
 	 */
-	public void registerListeners(Listener... listeners) 
+	protected void registerListeners(Listener... listeners)
 	{
 		for(Listener listener : listeners)
 			Bukkit.getPluginManager().registerEvents(listener, this);
@@ -38,7 +38,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param listenersPackage The name of the listeners' package.
 	 */
-	public void registerListenersAt(String listenersPackage) 
+	protected void registerListenersAt(String listenersPackage)
 	{
 		Listener[] foundListeners = new Reflections(listenersPackage).getSubTypesOf(Listener.class).stream()
 				.map(classz -> 
@@ -71,7 +71,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param message The message to send.
 	 */
-	public void log(String message) 
+	protected void log(String message)
 	{
 		Bukkit.getConsoleSender().sendMessage(String.format("[%s] %s", this.pluginName, message));
 	}
@@ -81,7 +81,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @param errorMessages The messages to send to the console in red.
 	 */
-	public void disableBecause(String... errorMessages)
+	protected void disableBecause(String... errorMessages)
 	{
 		Arrays.stream(errorMessages).forEach(this::logError);
 		
@@ -93,7 +93,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @return What {@link VaultHook#loadEconomy()} returns.
 	 */
-	public ServiceProvider<Economy> loadEconomy()
+	protected ServiceProvider<Economy> loadEconomy()
 	{
 		return VaultHook.loadEconomy();
 	}
@@ -103,7 +103,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @return What {@link VaultHook#loadPermission()} returns.
 	 */
-	public ServiceProvider<Permission> loadPermissions()
+	protected ServiceProvider<Permission> loadPermissions()
 	{
 		return VaultHook.loadPermission();
 	}
@@ -113,7 +113,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	 * 
 	 * @return What {@link VaultHook#loadChat()} returns.
 	 */
-	public ServiceProvider<Chat> loadChat()
+	protected ServiceProvider<Chat> loadChat()
 	{
 		return VaultHook.loadChat();
 	}
