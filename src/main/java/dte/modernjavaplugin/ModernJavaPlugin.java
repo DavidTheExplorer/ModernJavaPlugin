@@ -17,7 +17,6 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-
 public class ModernJavaPlugin extends JavaPlugin
 {
 	private final String pluginName = getDescription().getName();
@@ -78,16 +77,6 @@ public class ModernJavaPlugin extends JavaPlugin
 	}
 	
 	/**
-	 * A variant of {@link #log(String)} that logs <b>red</b> messages to the console.
-	 * 
-	 * @param message The error message to log.
-	 */
-	public void logError(String message) 
-	{
-		log(RED + message);
-	}
-	
-	/**
 	 * Shortcut method to disable the plugin due to an error, and the provided {@code messages} will be logged to the console in <b>red</b>.
 	 * 
 	 * @param errorMessages The messages to send to the console in red.
@@ -127,5 +116,10 @@ public class ModernJavaPlugin extends JavaPlugin
 	public ServiceProvider<Chat> loadChat()
 	{
 		return VaultHook.loadChat();
+	}
+
+	private void logError(String message)
+	{
+		log(RED + message);
 	}
 }
