@@ -78,7 +78,7 @@ public class ModernJavaPlugin extends JavaPlugin
 	}
 	
 	/**
-	 * A variant of {@link #logToConsole(String)} that logs <b>red</b> messages to the console.
+	 * A variant of {@link #log(String)} that logs <b>red</b> messages to the console.
 	 * 
 	 * @param message The error message to log.
 	 */
